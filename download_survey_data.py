@@ -18,8 +18,6 @@ for i, columns_old in enumerate(df.columns.levels):
     df.rename(columns=dict(zip(columns_old, columns_new)), level=i, inplace=True)
 
 df.columns = df.columns.map(','.join).str.strip(',')
-df.columns = df.columns.str.replace(',', '_')
-df.columns = df.columns.str.replace('__', '_') #sometimes there were two commas in a row
 
 #change some names to make accessing columns easier
 names_to_change ={'Current Residence Metro Code1' : 'curr_res_cd1',
@@ -32,10 +30,37 @@ names_to_change ={'Current Residence Metro Code1' : 'curr_res_cd1',
                   'Movers from Elsewhere in the U.S. or Puerto Rico' : 'movers_from_else_US_PR',
                   'Movers to Elsewhere in the U.S. or Puerto Rico' : 'movers_to_else_US_PR',
                   'Movers from Abroad3' : ' movers_abroad',
-                  'Movers in Metro-to-Metro Flow' : 'm_to_m_flow',
+                  'Movers in Metro-to-Metro Flow' : 'flow',
                   'Estimate' : 'est'}
 
 for k, v in names_to_change.items():
     df.columns = df.columns.str.replace(k, v)
 
+df.columns = df.columns.str.replace(',', '_')
+df.columns = df.columns.str.replace(' ', '')
+df.columns = df.columns.str.replace('__', '_') #sometimes there were two commas in a row
+
 df.to_csv('data/m_to_m_clean_cols.csv')
+
+####
+# construct some additional dataset
+####
+
+# current info for each individual MSA
+indiv_msa_info_curr = df[[x for x in df.columns if 'curr' in x]].groupby('curr_res').agg('first').reset_index()
+indiv_msa_info_curr.to_excel('data/current_msa_info.xlsx', index = False)
+
+#movements for each MSA pair
+movement_pairs = df[['curr_res', 'curr_res_cd1', 'res_1y_ago', 'res_1y_ago_cd1',
+                     'flow_est', 'flow_MOE']]
+movement_pairs['min_flow'] = movement_pairs.flow_est - movement_pairs.flow_MOE
+movement_pairs.loc[movement_pairs['min_flow'] < 0, 'min_flow'] = 0 #cap the minimum flow to be nonnegative
+movement_pairs['max_flow'] = movement_pairs.flow_est + movement_pairs.flow_MOE
+
+movement_pairs.sort_values('flow_est', ascending = False, inplace = True)
+
+#check for NaNs and drop them
+print(movement_pairs.isna().sum())
+movement_pairs.dropna(inplace = True)
+
+movement_pairs.to_excel('data/movement_pairs.xlsx', index = False)
