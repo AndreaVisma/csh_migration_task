@@ -57,7 +57,7 @@ df.to_csv('data/m_to_m_clean_cols.csv')
 
 # current info for each individual MSA
 indiv_msa_info_curr = df[[x for x in df.columns if 'curr' in x]].groupby('curr_res').agg('first').reset_index()
-indiv_msa_info_curr.to_excel('data/current_msa_info.xlsx', index = False)
+indiv_msa_info_curr.to_excel('data/curr_msa_info.xlsx', index = False)
 
 #movements for each MSA pair
 movement_pairs = df[['curr_res', 'curr_res_cd1', 'res_1y_ago', 'res_1y_ago_cd1',
