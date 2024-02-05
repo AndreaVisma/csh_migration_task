@@ -46,8 +46,13 @@ tot_inflow["flow_est"].hist(bins=50, ax = ax)
 plt.xlabel("Inflows\nEstimated arrivals in the past year")
 plt.ylabel("Number of Metropolitan Statistical Areas")
 plt.title("Distribution of MSAs by number of new settlements, US")
-fig.savefig('plots/dist_inflows.png', bbox_inches = 'tight')
+fig.savefig('plots/distr_inflows.svg', bbox_inches = 'tight')
 plt.show()
+
+#print some info
+print(f"""
+mean inflow: {tot_inflow.flow_est.mean()},
+percentage MSAs with inflows < 100_000 : {100 * len(tot_inflow[tot_inflow.flow_est < 100_000])/len(tot_inflow)}""")
 
 #plot map for total estimated inflows
 fig, ax = plt.subplots(figsize=(7, 5))
@@ -176,6 +181,8 @@ plt.xlabel('Estimated permanent population in each MSA')
 plt.ylabel('Estimated migration inflow in each MSA')
 fig.savefig('plots/permanent_vs_inflow.svg', bbox_inches = 'tight')
 plt.show()
+
+large_msa = flow_size[flow_size.permanent_pop > 1.5e7]
 
 
 
