@@ -1,0 +1,8 @@
+contextily==1.5.0
+d3blocks==1.4.9
+geopandas==0.13.2
+matplotlib==3.7.1
+numpy==1.24.3
+pandas==1.5.3
+seaborn==0.13.2
+shapely==2.0.2
